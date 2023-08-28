@@ -1,13 +1,13 @@
 # Part 3
-### Prerequisite
+
 - clone project and mirror it to gitlab
 
+![image](./pictures/gitlab.png)
 
-- add Jenkinsfile to the project
+- add Jenkinsfile in folder to the project
 
-- 
+- create pipeline
 
 **Result**
 ![image](./pictures/jenkins%20complete.jpg)
-### Create pipeline
-- 
+ 
