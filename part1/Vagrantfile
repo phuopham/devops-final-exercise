@@ -1,0 +1,48 @@
+# -*- mode: ruby -*-
+ # vi: set ft=ruby :
+ Vagrant.configure("2") do |config|
+    config.vm.box = "geerlingguy/centos7"
+ 
+    config.vm.provider :virtualbox do |v|
+      v.memory = 512
+      v.cpus = 2
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--ioapic", "on"]
+    end
+ 
+    config.vm.define :control do |control|
+      control.vm.hostname = "control"
+      control.vm.network :private_network, ip: "192.168.56.10"
+      control.vm.provision "shell", inline: <<-SHELL
+        sudo yum install -y ansible
+        sudo yum install -y vim 
+      SHELL
+    end
+ 
+    config.vm.define :webserver do |web|
+      web.vm.hostname = "webserver"
+      web.vm.network :private_network, ip: "192.168.56.20", guest: 80, host: 8080
+      web.vm.provision "shell", inline: <<-SHELL
+      	sudo yum -y update
+    	sudo yum -y install httpd
+    	sudo systemctl start httpd.service
+    	sudo systemctl enable httpd.service
+      SHELL
+    end
+ 
+    config.vm.define :database do |db|
+      db.vm.hostname = "database"
+      db.vm.network :private_network, ip: "192.168.56.30", guest: 3306, host: 3306
+      db.vm.provision "shell", inline: <<-SHELL
+      	sudo yum -y update
+	sudo yum -y install mysql-server
+	sudo systemctl start mysqld.service
+	sudo systemctl enable mysqld.service
+
+	mysql -u root <<-EOF
+	  UPDATE mysql.user SET Password=PASSWORD('phuong') WHERE User='root';
+	  FLUSH PRIVILEGES;
+	EOF
+	SHELL
+    end
+  end
